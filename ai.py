@@ -1,23 +1,26 @@
-import openai
+import cohere
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize Cohere client using the API key
+co = cohere.ClientV2(os.getenv("COHERE_API_KEY"))
 
 def get_ai_response(user_message):
     """
-    Sends a user message to the OpenAI API and returns the generated response.
+    Sends a user message to Cohere's Chat API and returns the response text.
     """
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"You are a friendly community assistant. Reply to the user query: {user_message}",
-            max_tokens=100,
-            temperature=0.7
+        # Query the Cohere Chat API
+        response = co.chat(
+            model="command-a-03-2025",  # Model name
+            messages=[{"role": "user", "content": user_message}]
         )
-        return response.choices[0].text.strip()
+        # Extract the AI-generated response
+        return response.message.content[0].text.strip()
     except Exception as e:
-        print(f"Error with OpenAI API: {e}")
+        # Handle errors gracefully
+        print(f"Error with Cohere Chat API: {e}")
         return "Sorry, I couldn't generate a response. Please try again later."
